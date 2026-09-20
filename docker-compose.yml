@@ -1,0 +1,30 @@
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf.template:/etc/nginx/nginx.conf.template:ro
+      - ./logs:/var/log/nginx
+      # Uncomment for SSL certificates (production)
+      # - ./certs:/etc/nginx/certs:ro
+    environment:
+      - NUXT_UPSTREAM=${NUXT_UPSTREAM:-nuxt-app:3000}
+      - NEST_UPSTREAM=${NEST_UPSTREAM:-nest-api:3001}
+      - API_VERSION=${API_VERSION:-v1}
+    command: >
+      sh -c "envsubst '$${NUXT_UPSTREAM} $${NEST_UPSTREAM} $${API_VERSION}' 
+      < /etc/nginx/nginx.conf.template 
+      > /etc/nginx/nginx.conf 
+      && nginx -g 'daemon off;'"
+    env_file:
+      - .env
+    networks:
+      - app-network
+    restart: unless-stopped
+
+networks:
+  app-network:
+    external: true
