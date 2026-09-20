@@ -1130,4 +1130,50 @@ Keep documentation up to date with configuration changes.
 
 ---
 
+
+## 🔮 Future Enhancements
+
+The following features are **not currently configured** but are documented for future reference.
+
+### 1. SSL/HTTPS
+
+**Status:** ❌ Not configured (development uses HTTP only)
+
+**When to add:** Before production deployment.
+
+**How:**
+- Use Let's Encrypt with Certbot (production)
+- Use mkcert for local development (if needed)
+
+### 2. Static Files
+
+**Status:** ❌ Not configured (S3 will serve static files)
+
+**When to add:** Never (S3 is preferred for static assets).
+
+**Why:** S3 is faster, cheaper, and more scalable than serving files from NGINX.
+
+### 3. Rate Limiting
+
+**Status:** ❌ Not configured
+
+**When to add:** Before production deployment.
+
+**How:**
+```nginx
+limit_req_zone $binary_remote_addr zone=api_limit:10m rate=10r/s;
+
+location /api/ {
+    limit_req zone=api_limit burst=20 nodelay;
+}
+```
+
+### Considerations:
+
+- Shared IPs (NAT) can cause false positives
+- Legitimate APIs (webhooks, bots) may be blocked
+- Adjust limits based on real metrics
+
+---
+
 **Last updated:** 2026-09-20
